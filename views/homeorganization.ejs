@@ -209,18 +209,30 @@
                                         <p>Class: <%=exam.className%></p>
                                         <p>Start Date: <%= exam.examDate %> </p>
                                         <p>End Date: <%= exam.examEndDate %> </p>
-                                        
+                                        <form action="/removeExam" method="post">
+                                            <input type="hidden" name="examName" value="<%=exam.examName%>">
+                                            <button type="submit">Remove</button>
+                                        </form>
+                                        <form action="/viewQP" method="post">
+                                            <input type="hidden" name="examName" value="<%=exam.examName%>">
+                                            <button type="submit">View Question Paper</button>
+                                        </form>
                                     </div>
                                   </li>
                                 </ul>
                             <h3><%=exam.examName%> </h3>
-                            <form action="/removeExam" method="post">
+                            <!--<form action="/removeExam" method="post">
                                 <input type="hidden" name="examName" value="<%=exam.examName%>">
                                 <button type="submit">Remove</button>
                             </form>
+                        -->
                             <form action="/getaddQuestion" method="post">
                                 <input type="hidden" name="examName" value="<%=exam.examName%>">
                                 <button type="submit">Add Questions</button>
+                            </form>
+                            <form action="/getaddCO" method="post">
+                                <input type="hidden" name="examName" value="<%=exam.examName%>">
+                                <button type="submit">Add CO</button>
                             </form>
                         </div>
                         
@@ -239,6 +251,7 @@
                 
                 
             </div>
+            
 
 
 

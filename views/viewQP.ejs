@@ -1,0 +1,38 @@
+<%- include('partials/header') %>
+<div class="container mt-6">
+    <h1><%=Exams.examName%></h1>
+    <div class="row">
+        <div class="col-sm-8">
+          <div class="card">
+            <div class="card-body">
+                <%var TM=0%>
+                <%if(Question!=false){%>
+                    <%Question.forEach(function(question){%>
+                        <%TM+=question.maxMarks%>
+                    <%})}%>
+                    <h1>Total Marks <%=TM%>M</h1>
+                <%if(Question!=false){%>
+                    <%Question.forEach(function(question){%>
+                      <div style="display: flex;">
+                        <h3><%= question.questionNo %>) <%= question.question %> 
+                        
+                       
+                    
+                    ----><%=question.coNo%> ,  <%=question.maxMarks%>M  ,  Level <%=question.level%>
+                        </h3>
+                  </div>
+                    <%})%>
+                <%}%>
+                <br>
+                <hr>
+
+                </div>
+                </div>
+                </div>
+                </div>
+    
+    
+
+    
+
+</div>

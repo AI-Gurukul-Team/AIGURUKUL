@@ -66,6 +66,34 @@ function sendOTP(email,auth,authcode){
 
 
 
+function saveCoToExam(examName,orgUsername,coNo){
+    //console.log(examName);
+    //console.log(orgUsername);
+    //console.log(questionNo);
+    CO.findOne({examName:examName,orgUsername:orgUsername,coNo:coNo},function(err,foundCo){
+        if(foundCo){
+            console.log("CO found");
+            Exam.findOneAndUpdate({examName:examName,orgUsername:orgUsername},{ $push: { cos: foundCo  } },function(err,success){
+                if(err){
+                    console.log(err);
+                }
+                else if(success){
+                    console.log(success);
+                }
+                else{
+                    console.log("Nothing Happened");
+                }
+        })
+        }
+        else{
+            console.log("CO not found");
+        }
+       
+})
+}
+
+
+
 function saveToExam(examName,orgUsername,questionNo){
     //console.log(examName);
     //console.log(orgUsername);
@@ -155,6 +183,116 @@ function randomStr(){
 }
 
 
+
+function predictLevel(Ques){
+  
+    var level1=["Write", "List", "Label", "Name", "State", "Define", "Count", "Describe", "Draw", "Find", "Identify", "Match", 
+                            "Quote", "Recall", "Recite", "Sequence", "Tell", "Arrange", "Duplicate", "Memorize", "Order", "Outline", 
+                            "Recognize", "Relate", "Repeat", "Reproduce", "Select", "Choose", "Copy", "How", "Listen", "Locate",
+                "Memorise", "Observe", "Omit", "Read", "Recognise", "Record", "Remember", "Retell", "Show", "Spell",
+                "Trace", "What", "When", "Where", "Which", "Who", "Why"];
+    var level2=["Explain", "Summarize", "Paraphrase", "Describe", "Illustrate", "Conclude", "Demonstrate", "Discuss",
+                   "Generalize", "Identify", "Interpret", "Predict", "Report", "Restate", "Review", "Tell", "Classify",
+                   "Convert", "Defend", "Distinguish", "Estimate", "Express", "Extend", "Give example", "Indicate",
+                   "Infer", "Locate", "Recognize", "Rewrite", "Select", "Translate", "Ask", "Cite", "Compare",
+                   "Contrast", "Generalise", "Give examples", "Match", "Observe", "Outline", "Purpose", "Relate",
+                   "Rephrase", "Show", "Summarise","Comprehen"];
+    var level3=["Use", "Compute", "Solve", "Demonstrate", "Apply", "Construct", "Change", "Choose", "Dramatize", "Interview",
+                 "Prepare", "Produce", "Select", "Show", "Transfer", "Discover", "Employ", "Illustrate",
+                 "Interpret", "Manipulate","Modify", "Operate", "Practice", "Predict", "Relate schedule", "Sketch",
+                 "Use write", "Act", "Administer", "Associate", "Build", "Calculate", "Categorise", "Classify",
+                 "Connect", "Correlation", "Develop", "Dramatise", "Experiment", "With", "Group", "Identify",
+                 "Link", "Make use of", "Model", "Organise", "Perform", "Plan", "Relate", "Represent", "Simulate",
+                 "Summarise", "Teach", "Translate"];
+    var level4=["Analyse", "Categorize", "Compare", "Contrast", "Separate", "Characterize", "Classify", "Debate", "Deduce", 
+                "Diagram", "Differentiate", "Discriminate", "Distinguish", "Examine", "Outline", "Relate", "Research", 
+                "Appraise", "Breakdown", "Calculate", "Criticize", "Derive", "Experiment", "Identify", "Illustrate", 
+                "Infer", "Interpret", "Model", "Outline", "Point out", "Question", "Select", "Subdivide", "Test", 
+                "Arrange", "Assumption", "Categorise", "Cause and", "Effect", "Choose", "Difference", "Discover", 
+                "Dissect", "Distinction", "Divide", "Establish", "Find", "Focus", "Function", "Group", "Highlight", 
+                "In-depth", "Discussion", "Inference", "Inspect", "Investigate", "Isolate", "List", "Motive", "Omit", 
+                "Order", "Organise", "Point out", "Prioritize", "Rank", "Reason", "Relationships", "Reorganise", "See", 
+                "Similar to", "Simplify", "Survey", "Take part in", "Test for", "Theme", "Comparing"];
+    var level6=["Create", "Design", "Hypothesize", "Invent", "Develop", "Compose", "Construct", "Integrate", "Make",
+                 "Organize", "Perform", "Plan", "Produce", "Propose", "Rewrite", "Arrange", "Assemble", "Categorize", 
+                 "Collect", "Combine", "Comply", "Devise", "Explain", "Formulate", "Generate", "Prepare", "Rearrange",
+                 "Reconstruct", "Relate", "Reorganize", "Revise", "Set up", "Summarize", "Synthesize", "Tell", "Write", 
+                 "Adapt", "Add to", "Build", "Change", "Choose", "Combine", "Compile", "Convert", "Delete", "Discover", 
+                 "Discuss", "Elaborate", "Estimate", "Experiment", "Extend", "Happen", "Hypothesise", "Imagine",
+                 "Improve", "Innovate", "Make up", "Maximise", "Minimise", "Model", "Modify", "Original", "Originate",
+                 "Predict", "Reframe", "Simplify", "Solve", "Speculate", "Substitute", "Suppose", "Tabulate", "Test", 
+                 "Theorise", "Think", "Transform", "Visualise"];
+    var level5=["Judge", "Recommend", "Critique", "Justify", "Appraise", "Argue", "Assess", "Choose", "Conclude", 
+                "Decide", "Evaluate", "Predict", "Prioritize", "Prove", "Rank", "Rate", "Select", "Attach", "Compare", 
+                "Contrast", "Defend", "Describe", "Discriminate", "Estimate", "Explain", "Interpret", "Relate",
+                "Summarize", "Support", "Value", "Agree", "Award", "Bad", "Consider", "Convince", "Criteria", 
+                "Criticise", "Debate", "Deduct", "Determine", "Disprove", "Dispute", "Effective", "Give reasons", "Good",
+                "Grade", "How do we", "Know", "Importance", "Infer", "Influence", "Mark", "Measure", "Opinion", 
+                "Perceive", "Persuade", "Prioritise", "Rule on", "Test", "Useful", "Validate", "Why"];
+    
+    
+  
+    var que=Ques.toString().toLowerCase();
+    var c=[0,0,0,0,0,0];
+    level1.forEach(function(wor){
+        var word=wor.toString().toLowerCase();
+        if(que.indexOf(word)!=-1){
+            c[0]++;
+        }
+    })
+    
+    level2.forEach(function(wor){
+        var word=wor.toString().toLowerCase();
+        if(que.indexOf(word)!=-1){
+            c[1]++;
+        }
+    })
+    
+    level3.forEach(function(wor){
+        var word=wor.toString().toLowerCase();
+        if(que.indexOf(word)!=-1){
+            c[2]++;
+        }
+    })
+    
+    level4.forEach(function(wor){
+        var word=wor.toString().toLowerCase();
+        if(que.indexOf(word)!=-1){
+            c[3]++;
+        }
+    })
+    
+    level5.forEach(function(wor){
+        var word=wor.toString().toLowerCase();
+        if(que.indexOf(word)!=-1){
+            c[4]++;
+        }
+    })
+    
+    level6.forEach(function(wor){
+        var word=wor.toString().toLowerCase();
+        if(que.indexOf(word)!=-1){
+            c[5]++;
+        }
+    })
+    
+    var maxi=0;
+    var ans=1;
+    for(var i=0;i<c.length;i++){
+        if(maxi<c[i]){
+            maxi=c[i]
+            ans=i+1;
+        }
+    }
+    
+    console.log("It is level ",ans)
+    return ans;
+    
+    }
+
+
+
+
 const schemaOptions = {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   };
@@ -214,7 +352,10 @@ const questionSchema=new mongoose.Schema({
         sparse:true,
         unique:false,
         integer: true
-    }
+    },
+    coNo:{type:String,sparse:true,unique:false},
+    co:{type:String,sparse:true,unique:false},
+    level:{type:String,sparse:true,unique:false}
 })
 
 const answerSchema=new mongoose.Schema({
@@ -242,6 +383,14 @@ const gradeSchema=new mongoose.Schema({
     }
 })
 
+const coSchema=new mongoose.Schema({
+    creatorUsername:{type:String,sparse:true,unique:false},
+    examName:{type:String,sparse:true,unique:false},
+    orgUsername:{type:String,sparse:true,unique:false},
+    co:{type:String,sparse:true,unique:false},
+    coNo:{type:String,sparse:true,unique:false}
+})
+
 const examSchema=new mongoose.Schema({
     examName:{type:String,sparse:true,unique:false},
     className:{type:String,sparse:true,unique:false},
@@ -251,6 +400,7 @@ const examSchema=new mongoose.Schema({
     examEndDate:{type:Date,sparse:true,unique:false},
     questions:{type:[questionSchema],sparse:true,unique:false},
     answers:{type:[answerSchema],sparse:true,unique:false},
+    cos:{type:[coSchema],sparse:true,unique:false},
     examGrade:{type: Number,
         sparse:true,
         unique:false,
@@ -274,7 +424,7 @@ const Question=new mongoose.model("Question",questionSchema);
 const Answer=new mongoose.model("Answer",answerSchema);
 const Grade=new mongoose.model("Grade",gradeSchema);
 const Exam=new mongoose.model("Exam",examSchema);
-
+const CO=new mongoose.model("CO",coSchema);
 
 passport.use(Organization.createStrategy());
 passport.serializeUser(function(user,done){
@@ -1502,10 +1652,24 @@ app.post("/getaddQuestion",function(req,res){
                     Question.find({examName:examName,orgUsername:orgUsername},function(err,foundQuestion){
                         if(foundQuestion){
                             //console.log(foundExam);
-                            res.render("addQuestion",{User:req.user,Exams:foundExam,Question:foundQuestion,message:""});
+                            CO.find({examName:examName,orgUsername:orgUsername},function(err,foundCo){
+                                if(foundCo){
+                                    res.render("addQuestion",{User:req.user,Exams:foundExam,Question:foundQuestion,Co:foundCo,message:""});
+                                }
+                                else{
+                                    res.render("addQuestion",{User:req.user,Exams:foundExam,Question:foundQuestion,Co:false,message:""});
+                                }
+                            })
                         }
                         else{
-                            res.render("addQuestion",{User:req.user,Exams:foundExam,Question:false,message:""});
+                            CO.find({examName:examName,orgUsername:orgUsername},function(err,foundCo){
+                                if(foundCo){
+                                    res.render("addQuestion",{User:req.user,Exams:foundExam,Question:false,Co:foundCo,message:""});
+                                }
+                                else{
+                                    res.render("addQuestion",{User:req.user,Exams:foundExam,Question:false,Co:false,message:""});
+                                }
+                            })
                         }
                     })
                 
@@ -1535,9 +1699,13 @@ app.post("/getaddQuestion",function(req,res){
 
 app.post("/addQuestion",function(req,res){
     const examName=req.body.examName;
+    const coNo=req.body.coNo;
+    const level=predictLevel(req.body.question);
+    var cos="";
     //console.log(examName);
     const orgUsername=req.user.orgUsername;
     Question.findOne({examName:examName,orgUsername:orgUsername,questionNo:req.body.questionNo},function(err,foundQuestion){
+        
         if(foundQuestion){
             Exam.find({examName:examName,orgUsername:orgUsername},function(err,foundExam){
                 res.render("addQuestion",{User:req.user,Exams:foundExam,Question:foundQuestion,message:"Question Number Already Exist"});
@@ -1545,13 +1713,19 @@ app.post("/addQuestion",function(req,res){
             
         }
         else{
+            
+            
             const question=new Question({
                 questionNo:req.body.questionNo,
                 examName:examName,
                 orgUsername:orgUsername,
                 question:req.body.question,
                 solution:req.body.solution,
-                maxMarks:req.body.maxMarks
+                maxMarks:req.body.maxMarks,
+                coNo:coNo,
+                level:level
+                
+
             })
             question.save(function(err,doc){
                 if(!err){
@@ -1629,13 +1803,14 @@ Answer.findOne({examName:examName,orgUsername:orgUsername,studentUsername:req.us
             var examT = d.getHours() + ':' + d.getMinutes();
             var examED = eD.toISOString().slice(0,10);
             var examET = eD.getHours() + ':' + eD.getMinutes();
-            if(currentDate>=examD && currentTime>=examT && currentDate<=examED && currentTime<=examET){
+            if(true){//if(currentDate>=examD && currentTime>=examT && currentDate<=examED && currentTime<=examET){
                 if(foundExam){
                     
                     
         
                         Question.find({examName:examName,orgUsername:orgUsername},function(err,foundQuestion){
                             if(foundQuestion){
+
                                         res.render("giveExam",{Question:foundQuestion,Exam:foundExam,User:req.user,N:n,Ans:false});
                             }
                             else{
@@ -1804,6 +1979,157 @@ app.get("/allResult",function(req,res){
 });
 
 
+
+
+
+app.post("/getaddCO",function(req,res){
+    const examName=req.body.examName;
+    //console.log("examName= "+examName);
+    const orgUsername=req.user.orgUsername;
+    //console.log("orgUsername= "+orgUsername);
+    if(req.isAuthenticated()){
+        if((req.user.role=="Admin"||req.user.role=="Teacher")&&(req.user.registeredOrg==true||req.user.registeredTeacher==true)){
+
+            Exam.findOne({examName:examName,orgUsername:orgUsername},function(err,foundExam){
+                if(foundExam){
+                    CO.find({examName:examName,orgUsername:orgUsername},function(err,foundCo){
+                        if(foundCo){
+                            //console.log(foundExam);
+                            res.render("addCo",{User:req.user,Exams:foundExam,Co:foundCo,message:""});
+                        }
+                        else{
+                            res.render("addCo",{User:req.user,Exams:foundExam,Co:false,message:""});
+                        }
+                    })
+                
+                }
+                else{
+                    console.log("No exam found with this in app.get(/addQuestion)");
+                    res.redirect("/back");
+                }
+                
+            })
+            
+        }
+        
+        else{
+            res.render("unauthorized");
+        }
+    }
+    else{
+        res.redirect("/");
+    }
+
+
+});
+
+
+
+
+
+
+
+app.post("/addCo",function(req,res){
+    const examName=req.body.examName;
+    //console.log(examName);
+    const orgUsername=req.user.orgUsername;
+    CO.findOne({examName:examName,orgUsername:orgUsername,coNo:req.body.coNo},function(err,foundCo){
+        if(foundCo){
+            Exam.find({examName:examName,orgUsername:orgUsername},function(err,foundExam){
+                res.render("addCo",{User:req.user,Exams:foundExam,Co:foundCo,message:"CO Number Already Exist"});
+            })
+            
+        }
+        else{
+            const co=new CO({
+                coNo:req.body.coNo,
+                examName:examName,
+                orgUsername:orgUsername,
+                co:req.body.co
+            })
+            co.save(function(err,doc){
+                if(!err){
+                    saveCoToExam(examName,orgUsername,req.body.coNo);
+                }
+            });
+            
+        }
+        
+        
+        res.redirect("/back");
+    })
+})
+
+
+
+
+
+
+
+app.post("/removeQuestion",function(req,res){
+    const examName=req.body.examName;
+    const orgUsername=req.user.orgUsername;
+    const questionNo=req.body.questionNo;
+    
+    Question.find({examName:examName,orgUsername:orgUsername,questionNo:questionNo}).remove().exec();
+    //Exam.updateMany({examName:examName,orgUsername:orgUsername},{$pull:{questions:{questionNo:questionNo,examName:examName,orgUsername:orgUsername}}});
+    if(req.user.role=="Admin"){
+        res.redirect("/homeorganization");
+    }
+    else{
+        res.redirect("/hometeacher");
+    }
+})
+
+
+/*
+app.post("/editQuestion",function(req,res){
+    const examName=req.body.examName;
+    const orgUsername=req.user.orgUsername;
+    const questionNo=req.body.questionNo;
+    Question.findOne({examName:examName,orgUsername:orgUsername,questionNo:questionNo},function(err,foundQue){
+        if(!err){
+            Exam.findOne({examName:examName,orgUsername:orgUsername},function(err,foundExam){
+                if(!err){
+                    res.render("editQue",{Que:foundQue,Exam:foundExam});
+                }
+                else{
+                    console.log(err);
+                }
+            })
+
+        }
+        else{
+            console.log(err);
+        }
+        
+    })
+})
+*/
+
+app.post("/viewQP",function(req,res){
+    const examName=req.body.examName;
+    //console.log(examName);
+    const orgUsername=req.user.orgUsername;
+    
+        
+        
+            Exam.find({examName:examName,orgUsername:orgUsername},function(err,foundExam){
+                if(!err){
+                    Question.find({examName:examName,orgUsername:orgUsername},function(err,foundQues){
+                        if(!err && req.user.role!="Student"){
+                            res.render("viewQP",{User:req.user,Exams:foundExam,Question:foundQues});
+                        }
+                        else{
+                            res.render("unauthorized");
+                        }
+                    })
+                }
+                
+            })
+            
+        
+})
 
 
 app.listen(3000,function(){

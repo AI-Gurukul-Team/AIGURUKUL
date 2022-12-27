@@ -16,32 +16,37 @@
 <%var hrs=Exam.examEndDate.getHours()-date.getHours()%>
 <%var min=Exam.examEndDate.getMinutes()-date.getMinutes()%>
 <body onload="timerStart()">
-  
+  <%var TM=0%>
+  <%if(Question!=false){%>
+      <%Question.forEach(function(question){%>
+          <%TM+=question.maxMarks%>
+      <%})}%>
 
 <div class="container mt-5" >
   <h1>Exam: <%=Exam.examName%></h1>
   <div>
+    <h2 style="text-align: right;">Total Marks: <%=TM%></h2>
     <%if(Question!=false){%>
-      <%Question.forEach(function(quest){%>
+      <%Question.forEach(function(question){%>
         <%var flag=0%>
         <%if(Ans!=false){%>
           <%Ans.forEach(function(ans){%>
-            <%if(ans.questionNo==quest.questionNo){%>
+            <%if(ans.questionNo==question.questionNo){%>
               <div>
-              <h1 style="background-color: green; color: white;"><%=quest.questionNo%></h1>
+              <h3 style="background-color: green; color: white;"><%= question.questionNo %>) <%= question.question %>  ----><%=question.coNo%> ,  <%=question.maxMarks%>M  ,  Level <%=question.level%></h3>
               </div>
               <%flag=1%>
             <%}%>
           <%})%>
           <%if(flag==0){%>
             <div>
-              <h1 style="background-color:white; color: black;"><%=quest.questionNo%></h1>
+              <h3 style="background-color:white; color: black;"><%= question.questionNo %>) <%= question.question %>  ----><%=question.coNo%> ,  <%=question.maxMarks%>M  ,  Level <%=question.level%></h3>
             </div>
           <%}%>
         <%}%>
         <%if(Ans==false){%>
           <div>
-            <h1 style="background-color:white; color: black;"><%=quest.questionNo%></h1>
+            <h3 style="background-color:white; color: black;"><%= question.questionNo %>) <%= question.question %>  ----><%=question.coNo%> ,  <%=question.maxMarks%>M  ,  Level <%=question.level%></h3>
           </div>
         <%}%>
       <%} )%>
@@ -56,10 +61,10 @@
         <div class="card-body">
 
           <!-- Makes POST request to /register route -->
-          
+         
 
             <%if(Question!=false){%>
-                
+              
                 
                     
                         <%var i=0%>
