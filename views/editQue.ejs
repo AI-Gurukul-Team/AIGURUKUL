@@ -1,6 +1,6 @@
 <%- include('partials/header') %>
 <div class="container mt-5">
-  <h1>Add Questions for Exam: <%=Exams.examName%></h1>
+  <h1>Edit Questions for Exam: <%=Exams.examName%></h1>
 
   <div class="row">
     <div class="col-sm-8">
@@ -10,34 +10,10 @@
           <!-- Makes POST request to /register route -->
           
 
-            <%if(Question!=false){%>
-                <%Question.forEach(function(question){%>
-                  <div style="display: flex;">
-                    <form  action="/removeQuestion" method="post">
-                      <input type="hidden" name="examName" value="<%=Exams.examName%>">
-                      <input type="hidden" name="questionNo" value="<%=question.questionNo%>">
-
-                      <button style="margin-right: 10px; margin-left: 10px;" type="submit">Remove</button>
-                  </form> 
-                  <form  action="/editQuestion" method="post">
-                    <input type="hidden" name="examName" value="<%=Exams.examName%>">
-                    <input type="hidden" name="questionNo" value="<%=question.questionNo%>">
-
-                    <button style="margin-right: 10px; margin-left: 10px;" type="submit">Edit</button>
-                </form>
-                    <p><%= question.questionNo %>) <%= question.question %> 
-                    
-                
-                <%=question.coNo%> ,  <%=question.maxMarks%>M  ,  Level <%=question.level%>
-              </p>
-              </div>
-                <%})%>
-            <%}%>
-            <br>
-            <hr>
+          
             
 
-            <form action="/addQuestion" method="POST">
+            <form action="/editedQuestion" method="POST">
               <input type="hidden" name="examName" value="<%=Exams.examName%>">
 
               <div class="form-group">
@@ -57,22 +33,23 @@
 
             
 
+              
 
 
+              
             <div class="form-group">
                 <label for="questionNo">*Question No.</label>
-                <input type="text" required class="form-control" name="questionNo" placeholder="Q1A">
-                <p style="color:red;"><%= message %> </p>
+                <input type="text" required class="form-control" name="questionNo" value="<%=question.questionNo%>" >
               </div>
               <div class="form-group">
                 <label for="question">*Question</label>
 
-                <input id="quest" type="text" required class="form-control" name="question" placeholder="Define Operating System.">
+                <input id="quest" type="text" required class="form-control" name="question" value="<%=question.question%>">
               </div>
               <h3 id="show_Level" style="color: blue;"></h3>
               <div class="form-group">
                 <label for="solution">*Solution</label>
-                <textarea name="solution"  cols="30" rows="10" required class="form-control" ></textarea> 
+                <textarea name="solution"  cols="30" rows="10" required class="form-control"><%=question.solution%></textarea> 
 
               </div>
               <input  type="checkbox" name="cb" onclick="predictLevel()">Check Bloom's Level
@@ -83,9 +60,10 @@
               <div class="form-group">
                 <label for="Marks">*Marks for this Question</label>
 
-                <input type="number" required class="form-control" name="maxMarks" placeholder="5">
+                <input type="number" required class="form-control" name="maxMarks" value="<%=question.maxMarks%>">
               </div>
-            <button type="submit" class="btn btn-dark">Add Question</button>
+              
+            <button type="submit" class="btn btn-dark">Edit Question</button>
           </form>
 
         </div>

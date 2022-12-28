@@ -2082,7 +2082,7 @@ app.post("/removeQuestion",function(req,res){
 })
 
 
-/*
+
 app.post("/editQuestion",function(req,res){
     const examName=req.body.examName;
     const orgUsername=req.user.orgUsername;
@@ -2091,7 +2091,14 @@ app.post("/editQuestion",function(req,res){
         if(!err){
             Exam.findOne({examName:examName,orgUsername:orgUsername},function(err,foundExam){
                 if(!err){
-                    res.render("editQue",{Que:foundQue,Exam:foundExam});
+                    CO.find({examName:examName,orgUsername:orgUsername},function(err,foundCo){
+                        if(foundCo){
+                            res.render("editQue",{question:foundQue,Exams:foundExam,Co:foundCo});
+                        }
+                        else{
+                            res.render("editQue",{question:foundQue,Exams:foundExam,Co:false});
+                        }
+                    })
                 }
                 else{
                     console.log(err);
@@ -2105,7 +2112,7 @@ app.post("/editQuestion",function(req,res){
         
     })
 })
-*/
+
 
 app.post("/viewQP",function(req,res){
     const examName=req.body.examName;
@@ -2130,6 +2137,47 @@ app.post("/viewQP",function(req,res){
             
         
 })
+
+
+
+
+
+
+
+app.post("/editedQuestion",function(req,res){
+    const examName=req.body.examName;
+    const coNo=req.body.coNo;
+    const level=predictLevel(req.body.question);
+    var cos="";
+    //console.log(examName);
+    const orgUsername=req.user.orgUsername; 
+    Question.findOneAndUpdate({examName:examName,orgUsername:orgUsername,questionNo:req.body.questionNo},{$set:{questionNo:req.body.questionNo,
+        examName:examName,
+        orgUsername:orgUsername,
+        question:req.body.question,
+        solution:req.body.solution,
+        maxMarks:req.body.maxMarks,
+        coNo:coNo,
+        level:level}},{upsert:true},(error,doc)=>{
+            console.log(error);
+            if(!error){
+                saveToExam(examName,orgUsername,req.body.questionNo);
+                res.redirect("/back");
+            }
+            else{
+                res.redirect("/back");
+            }
+        });
+
+        
+})
+
+
+
+
+
+
+
 
 
 app.listen(3000,function(){
