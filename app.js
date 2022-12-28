@@ -1803,7 +1803,7 @@ Answer.findOne({examName:examName,orgUsername:orgUsername,studentUsername:req.us
             var examT = d.getHours() + ':' + d.getMinutes();
             var examED = eD.toISOString().slice(0,10);
             var examET = eD.getHours() + ':' + eD.getMinutes();
-            if(true){//if(currentDate>=examD && currentTime>=examT && currentDate<=examED && currentTime<=examET){
+            if(currentDate>=examD && currentTime>=examT && currentDate<=examED && currentTime<=examET){
                 if(foundExam){
                     
                     
@@ -2121,11 +2121,19 @@ app.post("/viewQP",function(req,res){
     
         
         
-            Exam.find({examName:examName,orgUsername:orgUsername},function(err,foundExam){
+            Exam.findOne({examName:examName,orgUsername:orgUsername},function(err,foundExam){
                 if(!err){
                     Question.find({examName:examName,orgUsername:orgUsername},function(err,foundQues){
                         if(!err && req.user.role!="Student"){
-                            res.render("viewQP",{User:req.user,Exams:foundExam,Question:foundQues});
+                            Organization.findOne({"orgUsername":orgUsername,role:"Admin",registeredOrg:true},function(err,foundOrg){
+                                if(!err){
+                                    res.render("viewQP",{User:req.user,Exams:foundExam,Question:foundQues,Org:foundOrg});
+                                }
+                                else{
+                                    res.render("unauthorized");
+                                }
+                            })
+                            
                         }
                         else{
                             res.render("unauthorized");
